@@ -20,21 +20,21 @@ template<class T, bool grow_on_demand=true>
 class Pool 
 {
     public:
-    Pool(const char* name_p, uint32_t n) 
+    Pool(const char* name_p, size_t n) 
         : mutex_m(), free_m(0), used_m(0), name_m(name_p) 
     {
-        for (uint32_t i=0; i<n; i++)
+        for (size_t i=0; i<n; i++)
         {
            free_m.push_front( std::make_unique<T>() );
         }
     }
 
-    virtual const char* getName() const
+    const char* getName() const
     {
         return name_m.c_str();
     }
 
-    virtual std::shared_ptr<T> alloc()
+    std::shared_ptr<T> alloc()
     {
         std::unique_lock<std::mutex> lock(mutex_m);
         if (free_m.empty() )
@@ -55,7 +55,7 @@ class Pool
         return sptr;
     }
 
-    virtual void free(T *obj)
+    void free(T *obj)
     {
         std::unique_lock<std::mutex> lock(mutex_m);
         auto it = std::find_if(used_m.begin(), used_m.end(), [&](std::unique_ptr<T> &p){ return p.get()==obj; } );
@@ -70,7 +70,7 @@ class Pool
         }
     }
 
-    uint32_t getFreeCount()
+    size_t getFreeCount()
     {
         std::unique_lock<std::mutex> lock(mutex_m);
         return free_m.size();
