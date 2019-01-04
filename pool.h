@@ -55,6 +55,15 @@ class Pool
         return sptr;
     }
 
+
+    size_t getFreeCount()
+    {
+        std::unique_lock<std::mutex> lock(mutex_m);
+        return free_m.size();
+    }
+
+private:
+
     void free(T *obj)
     {
         std::unique_lock<std::mutex> lock(mutex_m);
@@ -70,13 +79,6 @@ class Pool
         }
     }
 
-    size_t getFreeCount()
-    {
-        std::unique_lock<std::mutex> lock(mutex_m);
-        return free_m.size();
-    }
-
-    private:
     std::mutex mutex_m;
     std::list<std::unique_ptr<T>> free_m;
     std::list<std::unique_ptr<T>> used_m;
